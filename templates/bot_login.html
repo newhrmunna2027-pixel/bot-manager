@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OUT OF LAW - Bot Authenticator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght=700;900&family=Poppins:wght=300;400;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Poppins"', 'sans-serif'],
+                        orbitron: ['"Orbitron"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: radial-gradient(circle at 50% 50%, #151829 0%, #0b0d17 100%);
+            color: #E0E0E0;
+            overflow-x: hidden;
+        }
+        .login-card {
+            background: rgba(20, 24, 41, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 20px rgba(234, 179, 8, 0.15);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex items-center justify-center p-4">
+
+    <div class="login-card p-8 rounded-3xl w-full max-w-md space-y-6">
+        <div class="text-center">
+            <h1 class="font-orbitron font-black text-2xl tracking-widest text-white">
+                LINK GARENA <span class="text-yellow-400">BOT</span>
+            </h1>
+            <p class="text-gray-500 text-[10px] uppercase font-black tracking-widest mt-1">Activate Bot Terminal</p>
+        </div>
+
+        <!-- Tab Switcher -->
+        <div class="flex gap-2 bg-black/40 p-1.5 rounded-2xl border border-white/5">
+            <button onclick="switchLoginTab('credentials')" id="tab-credentials" class="flex-1 py-2.5 text-[10px] font-black uppercase tracking-wider rounded-xl transition bg-yellow-500 text-black">
+                Credentials
+            </button>
+            <button onclick="switchLoginTab('eat')" id="tab-eat" class="flex-1 py-2.5 text-[10px] font-black uppercase tracking-wider rounded-xl transition text-gray-400 hover:text-white">
+                EAT Token
+            </button>
+        </div>
+
+        <div id="error-banner" class="hidden bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-bold p-3.5 rounded-xl text-center">
+            Error message text
+        </div>
+
+        <div id="loading-state" class="hidden flex-col items-center justify-center py-4 space-y-2">
+            <i class="fas fa-spinner fa-spin text-2xl text-yellow-400"></i>
+            <span class="text-xs uppercase font-bold text-gray-500">Contacting Garena Servers...</span>
+        </div>
+
+        <div class="space-y-4" id="form-fields">
+            <!-- Tab 1: Standard Garena Credentials Inputs -->
+            <div id="credentials-fields" class="space-y-4">
+                <div>
+                    <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest block mb-1">Bot UID</label>
+                    <input type="number" id="uid" placeholder="Enter Bot Garena UID" class="w-full bg-[#11131a] border border-white/10 text-white rounded-xl py-3.5 px-4 text-xs font-bold outline-none focus:border-yellow-400">
+                </div>
+
+                <div>
+                    <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest block mb-1">Bot Password</label>
+                    <input type="password" id="password" placeholder="Enter Bot Password" class="w-full bg-[#11131a] border border-white/10 text-white rounded-xl py-3.5 px-4 text-xs font-bold outline-none focus:border-yellow-400">
+                </div>
+            </div>
+
+            <!-- Tab 2: Garena EAT Token Input -->
+            <div id="eat-fields" class="space-y-4 hidden">
+                <div>
+                    <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest block mb-1">EAT Token</label>
+                    <textarea id="eat_token" rows="3" placeholder="Paste Garena EAT Token Here" class="w-full bg-[#11131a] border border-white/10 text-white rounded-xl py-3 px-4 text-xs font-bold outline-none focus:border-yellow-400 resize-none"></textarea>
+                </div>
+            </div>
+
+            <button onclick="submitBotLogin()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black py-4 rounded-xl text-xs uppercase tracking-widest transition shadow-lg">
+                CONNECT TO SERVER
+            </button>
+            
+            <div class="or-divider flex items-center justify-between py-2 text-xs text-gray-500">
+                <hr class="flex-1 border-white/5">
+                <span class="px-3 uppercase font-black text-[9px] tracking-wider">Alternative Selector</span>
+                <hr class="flex-1 border-white/5">
+            </div>
+
+            <button onclick="triggerSwitchBotPopup()" class="w-full bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/25 font-black py-3.5 rounded-xl text-xs uppercase tracking-widest transition">
+                SWITCH REGISTERED BOT
+            </button>
+        </div>
+    </div>
+
+    <!-- Bot Selector Popup Modal -->
+    <div id="bot-switch-modal" class="fixed inset-0 hidden items-center justify-center bg-black/80 backdrop-blur-sm z-[200]">
+        <div class="bg-[#1b1e2b] border border-white/10 w-full max-w-sm rounded-3xl p-6 relative mx-4 shadow-2xl">
+            <button onclick="document.getElementById('bot-switch-modal').classList.replace('flex', 'hidden')" class="absolute top-4 right-4 text-gray-500 hover:text-white transition">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3 class="text-sm font-black text-yellow-400 uppercase tracking-widest mb-4 font-orbitron">Saved Garena Bots</h3>
+            
+            <div id="bot-switch-list" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                <!-- Dynamically Rendered -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'credentials';
+
+        function switchLoginTab(tab) {
+            currentTab = tab;
+            document.getElementById('error-banner').classList.add('hidden');
+            
+            const tabCredentials = document.getElementById('tab-credentials');
+            const tabEat = document.getElementById('tab-eat');
+            const credentialsFields = document.getElementById('credentials-fields');
+            const eatFields = document.getElementById('eat-fields');
+
+            if (tab === 'credentials') {
+                tabCredentials.className = "flex-1 py-2.5 text-[10px] font-black uppercase tracking-wider rounded-xl transition bg-yellow-500 text-black";
+                tabEat.className = "flex-1 py-2.5 text-[10px] font-black uppercase tracking-wider rounded-xl transition text-gray-400 hover:text-white";
+                credentialsFields.classList.remove('hidden');
+                eatFields.classList.add('hidden');
+            } else {
+                tabEat.className = "flex-1 py-2.5 text-[10px] font-black uppercase tracking-wider rounded-xl transition bg-yellow-500 text-black";
+                tabCredentials.className = "flex-1 py-2.5 text-[10px] font-black uppercase tracking-wider rounded-xl transition text-gray-400 hover:text-white";
+                credentialsFields.classList.add('hidden');
+                eatFields.classList.remove('hidden');
+            }
+        }
+
+        async function submitBotLogin() {
+            document.getElementById('error-banner').classList.add('hidden');
+            let payload = {};
+            let endpoint = '';
+
+            if (currentTab === 'credentials') {
+                let uid = document.getElementById('uid').value.trim();
+                let pass = document.getElementById('password').value.trim();
+                if(!uid || !pass) {
+                    alert("Fill out Garena credentials.");
+                    return;
+                }
+                payload = { uid, password: pass };
+                endpoint = '/api/bot/login';
+            } else {
+                let eatToken = document.getElementById('eat_token').value.trim();
+                if(!eatToken) {
+                    alert("Please paste the EAT token.");
+                    return;
+                }
+                payload = { eat_token: eatToken };
+                endpoint = '/api/bot/login_eat';
+            }
+            
+            document.getElementById('form-fields').classList.add('hidden');
+            document.getElementById('loading-state').classList.replace('hidden', 'flex');
+
+            try {
+                let res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                let data = await res.json();
+                if(data.success) {
+                    window.location.href = '/';
+                } else {
+                    document.getElementById('form-fields').classList.remove('hidden');
+                    document.getElementById('loading-state').classList.replace('flex', 'hidden');
+                    const err = document.getElementById('error-banner');
+                    err.innerText = data.msg;
+                    err.classList.remove('hidden');
+                }
+            } catch(e) {
+                alert("Bot auth connection timed out.");
+                document.getElementById('form-fields').classList.remove('hidden');
+                document.getElementById('loading-state').classList.replace('flex', 'hidden');
+            }
+        }
+
+        async function triggerSwitchBotPopup() {
+            let res = await fetch('/api/bot/list');
+            let data = await res.json();
+            let list = document.getElementById('bot-switch-list');
+            
+            if(data.success) {
+                if(data.bots.length === 0) {
+                    list.innerHTML = `<div class="text-center text-gray-500 py-6 text-xs font-bold uppercase">No Bots Registered to this Account.</div>`;
+                } else {
+                    list.innerHTML = data.bots.map(b => `
+                        <div onclick="switchActiveGarenaBot('${b.uid}')" class="p-3 bg-black/40 hover:bg-yellow-400 hover:text-black cursor-pointer rounded-xl border border-white/5 flex justify-between items-center transition-all duration-300">
+                            <div>
+                                <b class="text-xs uppercase font-orbitron block">${b.nickname}</b>
+                                <span class="text-[9px] font-mono">UID: ${b.uid} | Lvl: ${b.level}</span>
+                            </div>
+                            <span class="text-[8px] bg-white/10 px-2 py-0.5 rounded font-black">SELECT</span>
+                        </div>
+                    `).join('');
+                }
+                document.getElementById('bot-switch-modal').classList.replace('hidden', 'flex');
+            }
+        }
+
+        async function switchActiveGarenaBot(uid) {
+            document.getElementById('bot-switch-modal').classList.replace('flex', 'hidden');
+            document.getElementById('form-fields').classList.add('hidden');
+            document.getElementById('loading-state').classList.replace('hidden', 'flex');
+            
+            try {
+                let res = await fetch('/api/bot/switch', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({uid})
+                });
+                let data = await res.json();
+                if(data.success) {
+                    window.location.href = '/';
+                } else {
+                    alert(data.msg);
+                    document.getElementById('form-fields').classList.remove('hidden');
+                    document.getElementById('loading-state').classList.replace('flex', 'hidden');
+                }
+            } catch(e) {
+                alert("Switch execution timeout.");
+                document.getElementById('form-fields').classList.remove('hidden');
+                document.getElementById('loading-state').classList.replace('flex', 'hidden');
+            }
+        }
+    </script>
+</body>
+</html>

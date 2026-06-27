@@ -1,0 +1,34 @@
+<div class="fixed bottom-4 inset-x-4 max-w-lg mx-auto z-50">
+    <nav class="bg-[#141624]/90 backdrop-blur-xl border border-white/5 rounded-3xl py-2 px-4 shadow-[0_15px_35px_rgba(0,0,0,0.6)] flex justify-between items-center">
+        <!-- Guild Tab -->
+        <button onclick="switchTab('guild-tab', this); loadGuildInfo();" class="nav-btn flex-1 flex flex-col items-center gap-1 text-gray-400 transition-all duration-300">
+            <i class="fas fa-shield-halved text-base"></i>
+            <span class="text-[9px] uppercase tracking-wider">Guild</span>
+        </button>
+
+        <!-- Friend Tab -->
+        <button onclick="switchTab('friend-tab', this); loadFriends();" class="nav-btn flex-1 flex flex-col items-center gap-1 text-gray-400 transition-all duration-300">
+            <i class="fas fa-users text-base"></i>
+            <span class="text-[9px] uppercase tracking-wider">Friend</span>
+        </button>
+
+        <!-- Center Floating Home Button -->
+        <div class="flex-shrink-0 px-2 relative -top-4">
+            <button onclick="switchTab('dashboard-tab', this)" class="nav-btn w-14 h-14 bg-gradient-to-tr from-yellow-500 to-amber-400 text-black rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(234,179,8,0.4)] hover:scale-105 transition-all duration-300">
+                <i class="fas fa-home text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Bot Tab -->
+        <button onclick="switchTab('bot-tab', this)" class="nav-btn flex-1 flex flex-col items-center gap-1 text-gray-400 transition-all duration-300">
+            <i class="fas fa-robot text-base"></i>
+            <span class="text-[9px] uppercase tracking-wider">Bot</span>
+        </button>
+
+        <!-- Bot Logout Tab (Triggers beautiful custom modal) -->
+        <button onclick="document.getElementById('bot-logout-confirm-modal').classList.replace('hidden', 'flex')" class="flex-1 flex flex-col items-center gap-1 text-rose-500 hover:text-rose-400 transition-all duration-300">
+            <i class="fas fa-power-off text-base"></i>
+            <span class="text-[9px] uppercase tracking-wider">Logout</span>
+        </button>
+    </nav>
+</div>

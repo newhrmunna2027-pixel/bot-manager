@@ -1,0 +1,626 @@
+<!-- 1. Send Friend Request Modal (Add Friend 2.0 with Profile Card & Backdrop Dismiss) -->
+<div id="add-friend-modal" onclick="if(event.target === this) window.resetAndCloseAddFriendModal()" class="fixed inset-0 hidden items-center justify-center bg-black/80 backdrop-blur-sm z-[200]">
+    <div class="bg-[#0f111a] border border-white/10 w-full max-w-sm rounded-[2.5rem] shadow-2xl relative overflow-hidden p-6 max-h-[90vh] overflow-y-auto mx-4">
+        
+        <!-- Cross Close Button -->
+        <button onclick="window.resetAndCloseAddFriendModal()" class="absolute top-5 right-5 text-gray-500 hover:text-white bg-white/5 w-8 h-8 rounded-full flex items-center justify-center transition z-50">
+            <i class="fas fa-times text-xs"></i>
+        </button>
+        
+        <h3 class="text-lg font-orbitron font-black text-yellow-400 uppercase tracking-widest mb-6 text-center">Add New Friend</h3>
+        
+        <!-- Input & Checker Area -->
+        <div id="add-friend-search-block" class="space-y-4">
+            <input type="number" id="modal-f-uid" placeholder="Enter Target Account UID" class="w-full bg-[#11131a] border border-white/10 text-white rounded-xl p-3.5 text-xs font-bold outline-none focus:border-yellow-400">
+            <button onclick="window.scanAddFriendProfile()" id="btn-scan-friend" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black py-3.5 rounded-xl text-xs uppercase tracking-widest transition shadow-lg flex items-center justify-center gap-1.5">
+                <i class="fas fa-search" id="scan-friend-icon"></i> Check Profile
+            </button>
+        </div>
+
+        <!-- Scanning loading animation -->
+        <div id="scan-friend-loading" class="hidden flex-col items-center justify-center py-8 space-y-2">
+            <i class="fas fa-spinner fa-spin text-2xl text-yellow-400"></i>
+            <span class="text-[9px] uppercase font-black text-gray-500 tracking-wider animate-pulse">Scanning Garena Databases...</span>
+        </div>
+
+        <!-- Pixel-Perfect Garena Profile Card Preview -->
+        <div id="scan-friend-result-card" class="hidden relative bg-[#13151f] rounded-3xl overflow-hidden border border-white/5 shadow-xl mt-4">
+            <!-- Banner Background -->
+            <div class="h-20 w-full relative border-b-2 border-yellow-500 bg-gradient-to-r from-blue-900 to-indigo-950">
+                <img id="sf-banner" src="" class="w-full h-full object-cover opacity-60 absolute inset-0 hidden">
+                <div class="absolute right-3 bottom-2 text-white text-[10px] font-bold flex items-center gap-1 bg-black/60 px-2.5 py-0.5 rounded-md border border-white/5 shadow-md z-30">
+                    <i class="fas fa-thumbs-up text-yellow-400"></i> <span id="sf-likes">0</span>
+                </div>
+            </div>
+            
+            <div class="px-4 pb-4 relative">
+                <!-- Avatar Frame with Level Badge -->
+                <div class="relative -mt-7 mb-2 flex justify-center z-30">
+                    <div class="w-14 h-14 rounded-xl border-2 border-white bg-black shadow-lg relative p-0.5">
+                        <img id="sf-avatar" src="https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/902000003.png" class="w-full h-full object-cover rounded-lg">
+                        <div class="absolute -bottom-1.5 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-black font-black text-[8px] px-1.5 py-0.5 rounded shadow-md whitespace-nowrap z-20 font-orbitron">Lv.<span id="sf-level">0</span></div>
+                    </div>
+                </div>
+                
+                <div class="text-center mb-3">
+                    <h5 id="sf-name" class="text-sm font-black text-white font-orbitron">Target Nickname</h5>
+                    <div class="text-yellow-400 text-[9px] font-bold font-mono">Scanned UID: <span id="sf-uid-display" class="select-all">000</span></div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-y-1 text-[9px] text-gray-400 font-bold px-1 border-t border-white/5 pt-2 mb-4">
+                    <div class="text-left text-gray-500">Guild</div>
+                    <div class="text-right text-yellow-400 font-orbitron truncate" id="sf-guild">No Guild</div>
+                    <div class="text-left text-gray-500">Region</div>
+                    <div class="text-right text-gray-300" id="sf-region">BD</div>
+                    <div class="text-left text-gray-500">Created</div>
+                    <div class="text-right text-gray-300 font-mono text-[8px]" id="sf-create">N/A</div>
+                    <div class="text-left text-gray-500">Last Login</div>
+                    <div class="text-right text-emerald-400 font-mono text-[8px]" id="sf-login">N/A</div>
+                </div>
+
+                <!-- Glowing Send Request Button -->
+                <button onclick="submitScannedFriendRequest()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-white font-black py-3 rounded-xl text-xs uppercase tracking-widest shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all duration-300">
+                    Send Friend Request <i class="fas fa-paper-plane ml-1"></i>
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- 2. Signature Changer Modal -->
+<div id="bio-changer-modal" onclick="if(event.target === this) this.classList.replace('flex', 'hidden')" class="fixed inset-0 hidden items-center justify-center bg-black/80 backdrop-blur-sm z-[200]">
+    <div class="bg-[#1b1e2b] border border-white/10 w-full max-w-sm rounded-3xl p-6 relative mx-4 shadow-2xl">
+        <button onclick="document.getElementById('bio-changer-modal').classList.replace('flex', 'hidden')" class="absolute top-4 right-4 text-gray-500 hover:text-white transition">
+            <i class="fas fa-times"></i>
+        </button>
+        <h3 class="text-sm font-black text-yellow-400 uppercase tracking-widest mb-4 font-orbitron">Signature Changer</h3>
+        
+        <div class="space-y-3">
+            <div>
+                <label class="text-[9px] text-gray-500 uppercase font-black tracking-widest block mb-1">Line 1 Signature</label>
+                <input type="text" id="modal-bio-l1" placeholder="e.g. 👑 OUT OF LAW 👑" class="w-full bg-[#11131a] border border-white/10 text-white rounded-xl p-3 text-xs font-bold outline-none focus:border-yellow-400">
+            </div>
+            <div>
+                <label class="text-[9px] text-gray-500 uppercase font-black tracking-widest block mb-1">Line 2 Signature</label>
+                <input type="text" id="modal-bio-l2" placeholder="e.g. [FF0000]RED TEXT" class="w-full bg-[#11131a] border border-white/10 text-white rounded-xl p-3 text-xs font-bold outline-none focus:border-yellow-400">
+            </div>
+            <div>
+                <label class="text-[9px] text-gray-500 uppercase font-black tracking-widest block mb-1">Line 3 Signature</label>
+                <input type="text" id="modal-bio-l3" placeholder="e.g. BD Server Bot" class="w-full bg-[#11131a] border border-white/10 text-white rounded-xl p-3 text-xs font-bold outline-none focus:border-yellow-400">
+            </div>
+            
+            <button onclick="submitBioChangerPacket()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black py-3.5 rounded-xl text-xs uppercase tracking-widest transition shadow-lg mt-2">
+                Update Garena Signature
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 3. Nickname Changer Modal (Shows old/current name) -->
+<div id="nickname-changer-modal" onclick="if(event.target === this) this.classList.replace('flex', 'hidden')" class="fixed inset-0 hidden items-center justify-center bg-black/80 backdrop-blur-sm z-[200]">
+    <div class="bg-[#1b1e2b] border border-white/10 w-full max-w-sm rounded-3xl p-6 relative mx-4 shadow-2xl">
+        <button onclick="document.getElementById('nickname-changer-modal').classList.replace('flex', 'hidden')" class="absolute top-4 right-4 text-gray-500 hover:text-white transition">
+            <i class="fas fa-times"></i>
+        </button>
+        <h3 class="text-sm font-black text-yellow-400 uppercase tracking-widest mb-4 font-orbitron">Modify Nickname</h3>
+        
+        <div class="space-y-4">
+            <div class="bg-black/30 p-3 rounded-xl border border-white/5 text-center">
+                <span class="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Old / Current Nickname</span>
+                <b id="old-nickname-display" class="text-sm text-white font-orbitron">Bot Portrait</b>
+            </div>
+            
+            <div>
+                <label class="text-[10px] text-gray-500 uppercase font-black block mb-1">New Nickname</label>
+                <input type="text" id="modal-new-nickname-input" placeholder="Enter new Garena name" class="w-full bg-[#11131a] border border-white/10 text-white rounded-xl p-3.5 text-xs font-bold outline-none focus:border-yellow-400">
+            </div>
+            
+            <button onclick="submitNicknameChangerPacket()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black py-3.5 rounded-xl text-xs uppercase tracking-widest transition shadow-lg">
+                Update Nickname
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 4. SIDEBAR FLOATING DRAWER -->
+<div id="admin-sidebar-drawer" onclick="if(event.target === this) this.classList.replace('flex', 'hidden')" class="fixed inset-0 hidden z-[300] bg-black/80 backdrop-blur-xs flex justify-start transition-all duration-300">
+    <div class="w-72 bg-[#141624] border-r border-white/5 p-6 h-full flex flex-col justify-between shadow-2xl relative">
+        <button onclick="document.getElementById('admin-sidebar-drawer').classList.replace('flex', 'hidden')" class="absolute top-5 right-5 text-gray-400 hover:text-white transition"><i class="fas fa-times"></i></button>
+        
+        <div class="space-y-6">
+            <div>
+                <h1 class="font-orbitron font-black text-lg tracking-widest text-white">OUT OF LAW</h1>
+                <p class="text-[9px] text-gray-500 font-bold uppercase tracking-wider">Management Control</p>
+            </div>
+            
+            <div class="space-y-2" id="sidebar-menu-items-block">
+                <button onclick="document.getElementById('admin-sidebar-drawer').classList.replace('flex', 'hidden'); openBotManagementView();" class="w-full text-left text-gray-300 hover:text-yellow-400 p-3 rounded-xl hover:bg-white/5 font-bold transition flex items-center gap-3 text-xs uppercase tracking-wider"><i class="fas fa-cogs"></i> Bot Controller</button>
+                
+                <!-- Server-side Secure Owner Injection -->
+                {% if session.get('role') == 'owner' %}
+                <button onclick="document.getElementById('admin-sidebar-drawer').classList.replace('flex', 'hidden'); openUserManagementView();" class="w-full text-left text-gray-300 hover:text-yellow-400 p-3 rounded-xl hover:bg-white/5 font-bold transition flex items-center gap-3 text-xs uppercase tracking-wider"><i class="fas fa-user-cog"></i> User Registry</button>
+                {% endif %}
+            </div>
+        </div>
+
+        <div>
+            <!-- User Logout -->
+            <button onclick="document.getElementById('user-logout-confirm-modal').classList.replace('hidden', 'flex')" class="w-full bg-rose-600/10 text-rose-400 hover:bg-rose-600 hover:text-white transition-all py-3 rounded-xl text-xs font-bold border border-rose-500/20 flex items-center justify-center gap-2">
+                <i class="fas fa-sign-out-alt"></i> User Logout
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 5. User Management Modal view -->
+<div id="user-management-modal" onclick="if(event.target === this) this.classList.replace('flex', 'hidden')" class="fixed inset-0 hidden items-center justify-center bg-black/90 backdrop-blur-sm z-[200]">
+    <div class="bg-[#1b1e2b] border border-white/10 w-full max-w-2xl rounded-3xl p-6 relative mx-4 max-h-[85vh] overflow-y-auto shadow-2xl">
+        <button onclick="document.getElementById('user-management-modal').classList.replace('flex', 'hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-white transition"><i class="fas fa-times"></i></button>
+        <h3 class="text-sm font-black text-yellow-400 uppercase tracking-widest mb-4 font-orbitron">User Directory Manager</h3>
+        
+        <div class="space-y-6">
+            <!-- Add / Edit Form Panel -->
+            <div class="bg-black/30 p-4 rounded-xl border border-white/5">
+                <span id="um-form-title" class="text-[9px] text-gray-500 uppercase font-black block mb-2">Create / Edit Client Account</span>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <input type="text" id="um-name" placeholder="Full Member Name" class="bg-[#11131a] border border-white/10 text-white rounded-lg p-2.5 outline-none focus:border-yellow-500">
+                    <input type="text" id="um-user" placeholder="Login ID Username" class="bg-[#11131a] border border-white/10 text-white rounded-lg p-2.5 outline-none focus:border-yellow-500">
+                    <input type="text" id="um-pass" placeholder="Password (Plain-Text)" class="bg-[#11131a] border border-white/10 text-white rounded-lg p-2.5 outline-none focus:border-yellow-500">
+                    <div class="grid grid-cols-2 gap-2">
+                        <select id="um-role" class="bg-[#11131a] border border-white/10 text-white rounded-lg p-2.5 outline-none">
+                            <option value="user">Role: User</option>
+                            <option value="owner">Role: Owner</option>
+                        </select>
+                        <input type="number" id="um-limit" placeholder="Max Slots" class="bg-[#11131a] border border-white/10 text-white rounded-lg p-2.5 outline-none focus:border-yellow-400">
+                    </div>
+                </div>
+                <div class="flex gap-2 mt-4">
+                    <button id="btn-cancel-edit" onclick="resetUserForm()" class="hidden flex-1 bg-gray-700 hover:bg-gray-600 text-white font-black py-2.5 rounded-xl text-xs uppercase tracking-widest">Cancel Edit</button>
+                    <button onclick="saveUserAccount()" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-white font-black py-2.5 rounded-xl text-xs uppercase tracking-widest">Save Account</button>
+                </div>
+            </div>
+
+            <!-- Directory Members Table -->
+            <div class="space-y-2">
+                <span class="text-[9px] text-gray-500 uppercase font-black block">Central Members Registry</span>
+                <div id="um-users-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 6. Bot Controller Management Modal -->
+<div id="bot-management-control-modal" onclick="if(event.target === this) this.classList.replace('flex', 'hidden')" class="fixed inset-0 hidden items-center justify-center bg-black/90 backdrop-blur-sm z-[200]">
+    <div class="bg-[#1b1e2b] border border-white/10 w-full max-w-lg rounded-3xl p-8 relative mx-4 max-h-[85vh] overflow-y-auto shadow-2xl">
+        <button onclick="document.getElementById('bot-management-control-modal').classList.replace('flex', 'hidden')" class="absolute top-4 right-4 text-gray-500 hover:text-white bg-white/5 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 z-50">
+            <i class="fas fa-times text-xs"></i>
+        </button>
+        
+        <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4 mr-6">
+            <h3 class="text-base font-black text-yellow-400 uppercase tracking-widest font-orbitron">Manage Bots</h3>
+            <button onclick="window.location.href='/bot-login'" class="bg-yellow-500 hover:bg-yellow-400 text-black text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-wider transition">Add Garena Bot</button>
+        </div>
+        
+        <div id="bot-management-table" class="space-y-3">
+            <!-- Render list of user bots -->
+        </div>
+    </div>
+</div>
+
+<!-- 7. CUSTOM BOT LOGOUT CONFIRMATION POPUP MODAL -->
+<div id="bot-logout-confirm-modal" onclick="if(event.target === this) this.classList.replace('flex', 'hidden')" class="fixed inset-0 hidden items-center justify-center bg-black/90 backdrop-blur-sm z-[500]">
+    <div class="bg-[#1b1e2b] border border-white/10 w-full max-w-xs rounded-3xl p-6 text-center shadow-2xl mx-4">
+        <div class="w-12 h-12 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto mb-4 border border-rose-500/20">
+            <i class="fas fa-power-off text-lg"></i>
+        </div>
+        <h4 class="text-sm font-black text-white font-orbitron uppercase tracking-wide mb-1">Disconnect Bot?</h4>
+        <p class="text-[10px] text-gray-400 mb-6 font-bold leading-relaxed">This action will cleanly wipe and disconnect the active Garena bot session.</p>
+        <div class="flex gap-2">
+            <button onclick="document.getElementById('bot-logout-confirm-modal').classList.replace('flex', 'hidden')" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white text-[10px] font-black py-3 rounded-xl uppercase tracking-wider">Cancel</button>
+            <button onclick="logoutBotConfirmed()" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-black py-3 rounded-xl uppercase tracking-wider shadow-lg">Disconnect</button>
+        </div>
+    </div>
+</div>
+
+<!-- 8. CUSTOM USER LOGOUT CONFIRMATION POPUP MODAL -->
+<div id="user-logout-confirm-modal" onclick="if(event.target === this) this.classList.replace('flex', 'hidden')" class="fixed inset-0 hidden items-center justify-center bg-black/90 backdrop-blur-sm z-[500]">
+    <div class="bg-[#1b1e2b] border border-white/10 w-full max-w-xs rounded-3xl p-6 text-center shadow-2xl mx-4">
+        <div class="w-12 h-12 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto mb-4 border border-rose-500/20">
+            <i class="fas fa-sign-out-alt text-lg"></i>
+        </div>
+        <h4 class="text-sm font-black text-white font-orbitron uppercase tracking-wide mb-1">Terminate Session?</h4>
+        <p class="text-[10px] text-gray-400 mb-6 font-bold leading-relaxed">Are you sure you want to log out of OUT OF LAW user dashboard?</p>
+        <div class="flex gap-2">
+            <button onclick="document.getElementById('user-logout-confirm-modal').classList.replace('flex', 'hidden')" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white text-[10px] font-black py-3 rounded-xl uppercase tracking-wider">Cancel</button>
+            <button onclick="window.location.href='/logout'" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-black py-3 rounded-xl uppercase tracking-wider shadow-lg">Logout</button>
+        </div>
+    </div>
+</div>
+
+<!-- 9. UNIVERSAL CUSTOM CONFIRMATION ENGINE -->
+<div id="universal-confirm-modal" onclick="if(event.target === this) this.classList.replace('flex', 'hidden')" class="fixed inset-0 hidden items-center justify-center bg-black/90 backdrop-blur-sm z-[600] transition-all">
+    <div class="bg-[#1b1e2b] border border-white/10 w-full max-w-xs rounded-3xl p-6 text-center shadow-2xl mx-4">
+        <div class="w-12 h-12 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto mb-4 border border-rose-500/20">
+            <i id="universal-confirm-icon" class="fas fa-exclamation-triangle text-lg"></i>
+        </div>
+        <h4 id="universal-confirm-title" class="text-sm font-black text-white font-orbitron uppercase tracking-wide mb-1">Confirm Action?</h4>
+        <p id="universal-confirm-message" class="text-[10px] text-gray-400 mb-6 font-bold leading-relaxed">Description of warning action.</p>
+        <div class="flex gap-2">
+            <button onclick="document.getElementById('universal-confirm-modal').classList.replace('flex', 'hidden')" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white text-[10px] font-black py-3 rounded-xl uppercase tracking-wider">Cancel</button>
+            <button id="universal-confirm-btn" onclick="executeConfirmAction()" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-black py-3 rounded-xl uppercase tracking-wider shadow-lg">Execute</button>
+        </div>
+    </div>
+</div>
+
+<!-- 10. GARENA SECURITY ACCOUNT BIND STATUS MODAL (Owner Only Pop-up) -->
+<div id="bind-status-modal" onclick="if(event.target === this) this.classList.replace('flex', 'hidden')" class="fixed inset-0 hidden items-center justify-center bg-black/90 backdrop-blur-sm z-[500]">
+    <div class="bg-[#1b1e2b] border border-white/10 w-full max-w-sm rounded-[2rem] p-6 relative mx-4 shadow-2xl overflow-hidden">
+        
+        <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-500"></div>
+        
+        <button onclick="document.getElementById('bind-status-modal').classList.replace('flex', 'hidden')" class="absolute top-4 right-4 text-gray-500 hover:text-white bg-white/5 w-8 h-8 rounded-full flex items-center justify-center transition">
+            <i class="fas fa-times text-xs"></i>
+        </button>
+        
+        <div class="text-center mb-6 mt-2">
+            <div class="w-12 h-12 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center mx-auto mb-3 border border-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.2)] animate-float">
+                <i class="fas fa-shield-halved text-lg"></i>
+            </div>
+            <h4 class="text-sm font-black text-white font-orbitron uppercase tracking-widest">Account Bind Status</h4>
+            <p class="text-[9px] text-gray-500 uppercase font-bold tracking-wider mt-1">Garena Security Registry</p>
+        </div>
+        
+        <div class="space-y-3" id="bind-modal-content">
+            <!-- Active Bind Info Block -->
+            <div class="bg-[#11131a]/60 border border-white/5 rounded-2xl p-4 space-y-3.5">
+                <!-- Current Confirmed Email -->
+                <div>
+                    <span class="text-gray-500 text-[8px] uppercase font-black tracking-widest block mb-1">Confirmed Email Address</span>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-envelope text-yellow-400 text-xs"></i>
+                        <b id="bind-current-email" class="text-xs text-white select-all font-mono">No Email Bound</b>
+                    </div>
+                </div>
+                
+                <!-- Pending Change Email -->
+                <div id="bind-pending-block" class="hidden border-t border-white/5 pt-3">
+                    <span class="text-rose-400 text-[8px] uppercase font-black tracking-widest block mb-1">Pending Change / Unbind</span>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-envelope-open text-rose-400 text-xs animate-pulse"></i>
+                        <b id="bind-pending-email" class="text-xs text-rose-300 select-all font-mono">N/A</b>
+                    </div>
+                    <div class="mt-2 flex items-center gap-1.5 bg-rose-500/5 border border-rose-500/10 p-2.5 rounded-xl">
+                        <i class="far fa-clock text-[10px] text-rose-400"></i>
+                        <span id="bind-countdown-timer" class="text-[9px] text-rose-300 font-bold font-mono">00h 00m 00s</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="document.getElementById('bind-status-modal').classList.replace('flex', 'hidden')" class="w-full bg-gray-800/40 hover:bg-gray-800 text-gray-300 border border-white/5 font-black py-3 rounded-xl text-[10px] uppercase tracking-wider transition-all duration-300 mt-4">
+            Close Panel
+        </button>
+    </div>
+</div>
+
+<script>
+    // EXPLICIT GLOBAL WINDOW BINDINGS
+    window.openAddFriendModalScanner = function() {
+        document.getElementById('modal-f-uid').value = '';
+        document.getElementById('scan-friend-result-card').classList.add('hidden');
+        document.getElementById('add-friend-search-block').classList.remove('hidden');
+        document.getElementById('add-friend-modal').classList.replace('hidden', 'flex');
+    };
+
+    window.resetAndCloseAddFriendModal = function() {
+        document.getElementById('add-friend-modal').classList.replace('flex', 'hidden');
+    };
+
+    window.scanAddFriendProfile = async function() {
+        let uid = document.getElementById('modal-f-uid').value.trim();
+        if(!uid) return showToast("UID Required", "error");
+        
+        document.getElementById('add-friend-search-block').classList.add('hidden');
+        document.getElementById('scan-friend-loading').classList.replace('hidden', 'flex');
+        
+        try {
+            let res = await fetch(`/api/check_uid/${uid}`);
+            let data = await res.json();
+            
+            document.getElementById('scan-friend-loading').classList.replace('flex', 'hidden');
+            
+            if(data.success) {
+                document.getElementById('sf-name').innerText = data.nickname;
+                document.getElementById('sf-uid-display').innerText = data.uid;
+                document.getElementById('sf-level').innerText = data.level;
+                document.getElementById('sf-likes').innerText = data.likes;
+                document.getElementById('sf-guild').innerText = data.clan_name || "No Guild";
+                document.getElementById('sf-region').innerText = data.region || "BD";
+                document.getElementById('sf-create').innerText = data.created_at || "N/A";
+                document.getElementById('sf-login').innerText = data.last_login || "N/A";
+                
+                // Fetch Garena avatar & banner via CDM URL (FIXED JSON_DATA SELECTOR)
+                const avatarId = data.json_data && data.json_data["1"] ? data.json_data["1"]["12"] : "902000003";
+                document.getElementById('sf-avatar').src = `https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/${avatarId}.png`;
+                
+                const bannerId = data.json_data && data.json_data["1"] ? data.json_data["1"]["11"] : "901000001";
+                const bannerImg = document.getElementById('sf-banner');
+                bannerImg.src = `https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/${bannerId}.png`;
+                bannerImg.classList.remove('hidden');
+                
+                document.getElementById('scan-friend-result-card').classList.remove('hidden');
+            } else {
+                showToast(data.message || "Invalid Player UID.", "error");
+                document.getElementById('add-friend-search-block').classList.remove('hidden');
+            }
+        } catch(e) {
+            showToast("Handshake timeout.", "error");
+            document.getElementById('add-friend-search-block').classList.remove('hidden');
+            document.getElementById('scan-friend-loading').classList.replace('flex', 'hidden');
+        }
+    };
+
+    window.submitScannedFriendRequest = async function() {
+        let uid = document.getElementById('sf-uid-display').innerText.trim();
+        if(!uid) return;
+        
+        try {
+            let res = await fetch('/api/friends/add', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({uid})
+            });
+            let data = await res.json();
+            if(data.success) {
+                showToast("Friend request packet successfully transmitted!");
+                window.resetAndCloseAddFriendModal();
+                if(typeof loadFriends === 'function') loadFriends();
+            } else {
+                showToast(data.msg, "error");
+            }
+        } catch(e) {
+            showToast("Garena connection timeout.", "error");
+        }
+    };
+
+    let activeConfirmCallback = null;
+
+    window.showConfirmModal = function(title, message, callback, iconClass = "fa-exclamation-triangle") {
+        document.getElementById('universal-confirm-title').innerText = title;
+        document.getElementById('universal-confirm-message').innerText = message;
+        document.getElementById('universal-confirm-icon').className = `fas ${iconClass} text-lg`;
+        
+        activeConfirmCallback = callback;
+        document.getElementById('universal-confirm-modal').classList.replace('hidden', 'flex');
+    };
+
+    window.executeConfirmAction = function() {
+        try {
+            if(activeConfirmCallback) {
+                activeConfirmCallback();
+            }
+        } catch(e) {
+            console.error("[*] Universal confirm callback exception handled safely:", e);
+        } finally {
+            document.getElementById('universal-confirm-modal').classList.replace('hidden', 'flex');
+            activeConfirmCallback = null;
+        }
+    };
+
+    async function logoutBotConfirmed() {
+        document.getElementById('bot-logout-confirm-modal').classList.replace('flex', 'hidden');
+        let res = await fetch('/api/bot/logout', { method: 'POST' });
+        let data = await res.json();
+        if(data.success) {
+            window.location.href = '/bot-login';
+        }
+    }
+
+    async function openBotManagementView() {
+        let res = await fetch('/api/bot/list');
+        let data = await res.json();
+        let table = document.getElementById('bot-management-table');
+        if(data.success) {
+            if(data.bots.length === 0) {
+                table.innerHTML = `<div class="text-center text-gray-500 py-6 text-xs font-bold uppercase">No Bots Linked.</div>`;
+            } else {
+                table.innerHTML = data.bots.map(b => `
+                    <div class="p-4 bg-[#11131a]/60 rounded-2xl border border-white/5 flex justify-between items-center">
+                        <div>
+                            <b class="text-sm font-orbitron text-white block">${b.nickname}</b>
+                            <span class="text-[10px] text-gray-400 font-mono">UID: ${b.uid} | Lvl: ${b.level}</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="switchActiveGarenaBot('${b.uid}')" class="bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500 hover:text-black p-2 rounded-xl text-xs"><i class="fas fa-sync-alt"></i></button>
+                            <button onclick="deleteLinkedBot('${b.uid}')" class="bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white p-2 rounded-xl text-xs"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('bot-management-control-modal').classList.replace('hidden', 'flex');
+        }
+    }
+
+    async function switchActiveGarenaBot(uid) {
+        let res = await fetch('/api/bot/switch', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({uid})
+        });
+        let data = await res.json();
+        if(data.success) {
+            showToast(data.msg);
+            document.getElementById('bot-management-control-modal').classList.replace('hidden', 'flex');
+            window.location.reload();
+        } else {
+            showToast(data.msg, "error");
+        }
+    }
+
+    async function deleteLinkedBot(uid) {
+        window.showConfirmModal(
+            "Wipe Bot Wallet?", 
+            "Are you sure you want to delete this bot's saved Garena credentials?", 
+            async () => {
+                let res = await fetch('/api/bot/delete', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({uid})
+                });
+                let data = await res.json();
+                if(data.success) {
+                    showToast(data.msg);
+                    openBotManagementView();
+                    loadBotProfile();
+                }
+            },
+            "fa-trash-alt"
+        );
+    }
+
+    // User Management UI Logic
+    async function openUserManagementView() {
+        let res = await fetch('/api/users/list');
+        let data = await res.json();
+        let list = document.getElementById('um-users-list');
+        if(data.success) {
+            list.innerHTML = data.users.map(u => `
+                <div class="p-3.5 bg-black/40 rounded-xl border border-white/5 flex justify-between items-center text-xs">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-white font-black text-sm uppercase tracking-wide">${u.name}</span>
+                            <span class="bg-[#1b1e2b] text-yellow-400 border border-yellow-400/20 text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">${u.role}</span>
+                        </div>
+                        <div class="font-mono text-gray-500 space-y-0.5 text-[10px]">
+                            <div>ID Username: <b class="text-white">${u.username}</b></div>
+                            <div>Password: <b class="text-white select-all">${u.password}</b></div>
+                            <div>Max Slots: <b class="text-white">${u.limit}</b> | Bots Active: <b class="text-emerald-400">${u.bots_count}</b></div>
+                        </div>
+                    </div>
+                    <div class="flex gap-1.5">
+                        <button onclick="editUserAccount('${u.name}', '${u.username}', '${u.password}', '${u.role}', ${u.limit})" class="bg-blue-500/10 text-blue-400 border border-blue-500/20 p-2 rounded-lg hover:bg-blue-500 hover:text-white transition-all"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteUserAccount('${u.username}')" class="bg-rose-500/10 text-rose-400 border border-rose-500/20 p-2 rounded-lg hover:bg-rose-500 hover:text-white transition-all"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('user-management-modal').classList.replace('hidden', 'flex');
+        }
+    }
+
+    function editUserAccount(name, username, password, role, limit) {
+        document.getElementById('um-name').value = name;
+        document.getElementById('um-user').value = username;
+        document.getElementById('um-user').readOnly = true;
+        document.getElementById('um-pass').value = password;
+        document.getElementById('um-role').value = role;
+        document.getElementById('um-limit').value = limit;
+        
+        document.getElementById('um-form-title').innerText = "Edit Client Account: " + username;
+        document.getElementById('btn-cancel-edit').classList.remove('hidden');
+    }
+
+    function resetUserForm() {
+        document.getElementById('um-name').value = '';
+        document.getElementById('um-user').value = '';
+        document.getElementById('um-user').readOnly = false;
+        document.getElementById('um-pass').value = '';
+        document.getElementById('um-role').value = 'user';
+        document.getElementById('um-limit').value = '';
+        
+        document.getElementById('um-form-title').innerText = "Create / Edit Client Account";
+        document.getElementById('btn-cancel-edit').classList.add('hidden');
+    }
+
+    async function saveUserAccount() {
+        let name = document.getElementById('um-name').value.trim();
+        let username = document.getElementById('um-user').value.trim();
+        let password = document.getElementById('um-pass').value.trim();
+        let role = document.getElementById('um-role').value;
+        let limit = document.getElementById('um-limit').value.trim() || 5;
+        
+        if(!username || !password || !name) return showToast("Fields missing.", "error");
+        
+        let res = await fetch('/api/users/add', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name, username, password, role, limit})
+        });
+        let data = await res.json();
+        if(data.success) {
+            showToast(data.msg);
+            resetUserForm();
+            openUserManagementView();
+        }
+    }
+
+    async function deleteUserAccount(username) {
+        window.showConfirmModal(
+            "Wipe User Account?", 
+            `Are you sure you want to permanently delete the user account and folder data for: ${username}?`, 
+            async () => {
+                let res = await fetch('/api/users/delete', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username})
+                });
+                let data = await res.json();
+                if(data.success) {
+                    showToast(data.msg);
+                    openUserManagementView();
+                } else {
+                    showToast(data.msg, "error");
+                }
+            },
+            "fa-user-times"
+        );
+    }
+
+    async function submitBioChangerPacket() {
+        let l1 = document.getElementById('modal-bio-l1').value.trim();
+        let l2 = document.getElementById('modal-bio-l2').value.trim();
+        let l3 = document.getElementById('modal-bio-l3').value.trim();
+        
+        let combinedBio = `${l1}\n${l2}\n${l3}`.trim();
+        if(!combinedBio) return showToast("Signature text required", "error");
+        
+        let res = await fetch('/api/bot/bio', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({bio: combinedBio})
+        });
+        let data = await res.json();
+        if(data.success) {
+            showToast("Bot signature changed successfully!");
+            document.getElementById('bio-changer-modal').classList.replace('hidden', 'flex');
+            document.getElementById('modal-bio-l1').value = '';
+            document.getElementById('modal-bio-l2').value = '';
+            document.getElementById('modal-bio-l3').value = '';
+            loadBotProfile();
+        } else {
+            showToast(data.msg, "error");
+        }
+    }
+
+    async function submitNicknameChangerPacket() {
+        let nickname = document.getElementById('modal-new-nickname-input').value.trim();
+        if(!nickname) return showToast("New nickname required", "error");
+        
+        let res = await fetch('/api/bot/nickname', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({nickname})
+        });
+        let data = await res.json();
+        if(data.success) {
+            showToast("Bot nickname modified successfully!");
+            document.getElementById('nickname-changer-modal').classList.replace('hidden', 'flex');
+            document.getElementById('modal-new-nickname-input').value = '';
+            loadBotProfile();
+        } else {
+            showToast(data.msg, "error");
+        }
+    }
+</script>

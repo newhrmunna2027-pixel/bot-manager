@@ -1,0 +1,143 @@
+<div id="friend-tab" class="tab-section hidden space-y-6">
+    <!-- Section Header Control -->
+    <div class="flex justify-between items-center bg-[#1B1E31]/40 border border-white/5 p-5 rounded-3xl shadow-lg">
+        <div>
+            <h3 class="font-orbitron font-black text-white text-base">FRIEND MANAGER</h3>
+            <p class="text-[10px] text-gray-400">Send requests or moderation packets.</p>
+        </div>
+        <button onclick="openAddFriendModalScanner()" class="bg-emerald-500 hover:bg-emerald-400 text-white font-black px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all duration-300 shadow-md">
+            + SEND REQUEST
+        </button>
+    </div>
+
+    <!-- Active Friends & Pending Requests Directory Lists -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- 1. Active Friends list -->
+        <div class="glass-card rounded-3xl p-4 flex flex-col h-[420px]">
+            <h4 class="text-xs font-black text-yellow-400 uppercase tracking-widest mb-3 border-b border-white/5 pb-2 flex items-center gap-1.5">
+                <i class="fas fa-user-check"></i> Friends Directory
+            </h4>
+            <div id="friends-list" class="flex-1 overflow-y-auto space-y-2 pr-1">
+                <div class="text-center text-gray-500 py-10 text-xs">Syncing friends directory...</div>
+            </div>
+        </div>
+
+        <!-- 2. Pending Requests List -->
+        <div class="glass-card rounded-3xl p-4 flex flex-col h-[420px]">
+            <h4 class="text-xs font-black text-rose-400 uppercase tracking-widest mb-3 border-b border-white/5 pb-2 flex items-center gap-1.5">
+                <i class="fas fa-clock"></i> Pending Handshakes
+            </h4>
+            <div id="pending-list" class="flex-1 overflow-y-auto space-y-2 pr-1">
+                <div class="text-center text-gray-500 py-10 text-xs">Syncing requests inbox...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Avatar CDN Loader (902 strict matching)
+        function getAvatarUrl(id) {
+            let avatarId = String(id).trim();
+            if (!avatarId.startsWith("902") || avatarId.length < 9) {
+                avatarId = "902000003"; // standard fallback
+            }
+            return `https://cdn.jsdelivr.net/gh/ShahGCreator/icon@main/PNG/${avatarId}.png`;
+        }
+
+        async function loadFriends() {
+            try {
+                let res = await fetch('/api/friends/list');
+                let data = await res.json();
+                let list = document.getElementById('friends-list');
+                if(!data.success || data.friends.length === 0) {
+                    list.innerHTML = '<div class="text-center text-gray-500 py-12 text-xs">No active friends found.</div>';
+                } else {
+                    list.innerHTML = data.friends.map(f => `
+                        <div class="flex justify-between items-center p-3.5 bg-[#11131a]/60 rounded-2xl border border-white/5">
+                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                                <!-- Active Friend Avatar Thumbnail -->
+                                <div class="w-10 h-10 rounded-xl bg-black/40 border border-white/10 p-0.5 flex-shrink-0">
+                                    <img src="${getAvatarUrl(f.avatar_id)}" class="w-full h-full object-cover rounded-lg">
+                                </div>
+                                <div class="min-w-0">
+                                    <b class="text-white text-sm block truncate">${f.nickname}</b>
+                                    <span class="text-[10px] text-yellow-400 font-mono font-bold block mt-0.5">Lv. ${f.level}</span>
+                                    <span class="text-[9px] text-gray-400 font-mono block">UID: ${f.uid} | Guild: ${f.guild_name}</span>
+                                </div>
+                            </div>
+                            <button onclick="deleteFriend('${f.uid}')" class="p-2 bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white rounded-xl transition-all duration-300">
+                                <i class="fas fa-trash-alt text-xs"></i>
+                            </button>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {}
+            loadPending();
+        }
+
+        async function loadPending() {
+            try {
+                let res = await fetch('/api/friends/pending');
+                let data = await res.json();
+                let list = document.getElementById('pending-list');
+                if(!data.success || data.requests.length === 0) {
+                    list.innerHTML = '<div class="text-center text-gray-500 py-12 text-xs">No pending requests found.</div>';
+                } else {
+                    list.innerHTML = data.requests.map(r => `
+                        <div class="flex justify-between items-center p-3.5 bg-[#11131a]/60 rounded-2xl border border-white/5">
+                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                                <!-- Pending Request Avatar Thumbnail -->
+                                <div class="w-10 h-10 rounded-xl bg-black/40 border border-white/10 p-0.5 flex-shrink-0">
+                                    <img src="${getAvatarUrl(r.avatar_id)}" class="w-full h-full object-cover rounded-lg">
+                                </div>
+                                <div class="min-w-0">
+                                    <b class="text-white text-sm block truncate">${r.nickname}</b>
+                                    <span class="text-[10px] text-yellow-400 font-mono font-bold block mt-0.5">Lv. ${r.level}</span>
+                                    <span class="text-[9px] text-gray-400 font-mono block">UID: ${r.uid}</span>
+                                    <span class="text-[9px] text-purple-400 font-bold block mt-0.5"><i class="fas fa-shield-halved"></i> Guild: ${r.guild_name}</span>
+                                    <span class="text-[8px] text-gray-500 font-mono block mt-0.5"><i class="far fa-clock"></i> Sent: ${r.request_time}</span>
+                                </div>
+                            </div>
+                            <div class="flex gap-1.5 flex-shrink-0">
+                                <button onclick="acceptRequest('${r.uid}')" class="bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-black w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300"><i class="fas fa-check text-xs"></i></button>
+                                <button onclick="rejectRequest('${r.uid}')" class="bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300"><i class="fas fa-times text-xs"></i></button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {}
+        }
+
+        async function deleteFriend(uid) {
+            window.showConfirmModal(
+                "Remove Friend?", 
+                "Are you sure you want to remove this player from Garena Friends?", 
+                async () => {
+                    let res = await fetch('/api/friends/remove', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid}) });
+                    let data = await res.json();
+                    if(data.success) { showToast("Friend deleted."); loadFriends(); }
+                },
+                "fa-trash-alt"
+            );
+        }
+
+        async function acceptRequest(uid) {
+            let res = await fetch('/api/friends/accept', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid}) });
+            let data = await res.json();
+            if(data.success) { showToast("Friend Request Accepted!"); loadFriends(); }
+        }
+
+        async function rejectRequest(uid) {
+            let res = await fetch('/api/friends/reject', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid}) });
+            let data = await res.json();
+            if(data.success) { showToast("Request rejected."); loadFriends(); }
+        }
+
+        // 🟢 ACTIVE TAB LIVE POLLING ENGINE (Runs silently every 2 seconds only when Friend tab is visible)
+        setInterval(() => {
+            const friendTab = document.getElementById('friend-tab');
+            if (friendTab && !friendTab.classList.contains('hidden')) {
+                loadFriends(); // Re-syncs friends list and pending request items automatically
+            }
+        }, 2000);
+    </script>
+</div>

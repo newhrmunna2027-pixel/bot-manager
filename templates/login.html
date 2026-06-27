@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OUT OF LAW - Unified Login Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Poppins"', 'sans-serif'],
+                        orbitron: ['"Orbitron"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: radial-gradient(circle at 50% 50%, #151829 0%, #0b0d17 100%);
+            color: #E0E0E0;
+            overflow-x: hidden;
+        }
+        .login-card {
+            background: rgba(20, 24, 41, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 20px rgba(59, 130, 246, 0.15);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex items-center justify-center p-4">
+
+    <div class="login-card p-8 rounded-3xl w-full max-w-md space-y-6">
+        <div class="text-center">
+            <h1 class="font-orbitron font-black text-3xl tracking-widest text-white">
+                OUT <span class="text-yellow-400">OF</span> LAW
+            </h1>
+            <p class="text-gray-500 text-[10px] uppercase font-black tracking-widest mt-1">Unified Command Portal</p>
+        </div>
+
+        <div id="error-banner" class="hidden bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-bold p-3.5 rounded-xl text-center">
+            Error message text
+        </div>
+
+        <div class="space-y-4">
+            <div>
+                <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest block mb-1">Username (Login ID)</label>
+                <div class="relative">
+                    <i class="fas fa-user-shield absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm"></i>
+                    <input type="text" id="username" placeholder="Enter Login ID" class="w-full bg-[#11131a] border border-white/10 text-white rounded-xl py-3.5 pl-11 pr-4 text-xs font-bold outline-none focus:border-yellow-400">
+                </div>
+                <span id="username-warning" class="text-[9px] text-rose-500 font-bold hidden">Username required.</span>
+            </div>
+
+            <div>
+                <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest block mb-1">Password</label>
+                <div class="relative">
+                    <i class="fas fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm"></i>
+                    <input type="password" id="password" placeholder="Enter Password" class="w-full bg-[#11131a] border border-white/10 text-white rounded-xl py-3.5 pl-11 pr-4 text-xs font-bold outline-none focus:border-yellow-400">
+                </div>
+                <span id="password-warning" class="text-[9px] text-rose-500 font-bold hidden">Password required.</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <input type="checkbox" id="remember" class="w-4 h-4 rounded bg-[#11131a] border-white/10 text-yellow-400">
+                <label for="remember" class="text-xs text-gray-400 font-bold uppercase tracking-wider cursor-pointer">Remember Me</label>
+            </div>
+
+            <button onclick="submitUserLogin()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black py-4 rounded-xl text-xs uppercase tracking-widest transition shadow-lg mt-2">
+                AUTHENTICATE SESSION
+            </button>
+        </div>
+    </div>
+
+    <script>
+        async function submitUserLogin() {
+            let user = document.getElementById('username').value.trim();
+            let pass = document.getElementById('password').value.trim();
+            let remember = document.getElementById('remember').checked;
+            
+            document.getElementById('username-warning').classList.add('hidden');
+            document.getElementById('password-warning').classList.add('hidden');
+            document.getElementById('error-banner').classList.add('hidden');
+            
+            if(!user) {
+                document.getElementById('username-warning').classList.remove('hidden');
+                return;
+            }
+            if(!pass) {
+                document.getElementById('password-warning').classList.remove('hidden');
+                return;
+            }
+            
+            try {
+                let res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username: user, password: pass, remember})
+                });
+                let data = await res.json();
+                if(data.success) {
+                    window.location.href = '/';
+                } else {
+                    const err = document.getElementById('error-banner');
+                    err.innerText = data.msg;
+                    err.classList.remove('hidden');
+                }
+            } catch(e) {
+                alert("Auth engine failure.");
+            }
+        }
+    </script>
+</body>
+</html>

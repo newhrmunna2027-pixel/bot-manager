@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OUT OF LAW - Garena Controller</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Poppins"', 'sans-serif'],
+                        orbitron: ['"Orbitron"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: #06070d;
+            color: #E0E0E0;
+            overflow-x: hidden;
+            padding-bottom: 110px; /* Space for bottom nav */
+            padding-top: 75px; /* Pinned header alignment space */
+            position: relative;
+            min-height: 100vh;
+        }
+        
+        /* EFFECT 1: CYBER METALLIC GRID BACKGROUND */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
+            background-size: 24px 24px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* EFFECT 2: DOUBLE-LAYERED FROSTED GLASSMORPHISM */
+        .cyber-glass {
+            background: rgba(15, 17, 28, 0.7);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+            border-right: 1px solid rgba(0, 0, 0, 0.4);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .cyber-glass:hover {
+            border-color: rgba(234, 179, 8, 0.25);
+        }
+
+        /* EFFECT 3: ZERO-GRAVITY SINUSOIDAL FLOATING EFFECT */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        /* EFFECT 4: PULSATING STAR TWINKLING EFFECT */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.1; transform: scale(0.8); }
+            50% { opacity: 0.8; transform: scale(1.2); }
+        }
+        .animate-twinkle {
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        /* EFFECT 5: DYNAMIC NEON CASCADE DROP SHADOWS */
+        @keyframes pulse-shadow-yellow {
+            0%, 100% { box-shadow: 0 0 15px rgba(234, 179, 8, 0.15); }
+            50% { box-shadow: 0 0 30px rgba(234, 179, 8, 0.4); }
+        }
+        .glow-shadow-yellow {
+            animation: pulse-shadow-yellow 3s ease-in-out infinite;
+        }
+
+        /* EFFECT 6: VIBRANT MICRO-SHAKE HAPTIC FEEDBACK */
+        @keyframes haptic-shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-4px); }
+            40%, 80% { transform: translateX(4px); }
+        }
+        .shake-haptic {
+            animation: haptic-shake 0.15s ease-in-out 2;
+        }
+
+        /* EFFECT 7: CYBERNETIC HUD SCANLINE ANIMATION */
+        @keyframes scanline {
+            0% { top: -10%; }
+            100% { top: 110%; }
+        }
+        .cyber-scanline {
+            position: relative;
+            overflow: hidden;
+        }
+        .cyber-scanline::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.8), transparent);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+            animation: scanline 3s linear infinite;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* EFFECT 8: FLOATING LOVE BUBBLES CARDS ENGINE */
+        @keyframes bubble-up {
+            0% { transform: translateY(10px) scale(0.5); opacity: 0; }
+            15% { opacity: 0.8; }
+            100% { transform: translateY(-120px) scale(1.2); opacity: 0; }
+        }
+        .bubble-heart {
+            position: absolute;
+            animation: bubble-up 2.5s ease-out forwards;
+            color: #ec4899;
+            pointer-events: none;
+            z-index: 40;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased">
+
+    <!-- AMBIENT GLOWING NEON ORBS (BACKGROUND EFFECTS) -->
+    <div class="fixed top-[-10%] left-[-10%] w-[350px] h-[350px] bg-purple-600/10 rounded-full blur-[110px] pointer-events-none z-[-1]"></div>
+    <div class="fixed bottom-[10%] right-[-10%] w-[400px] h-[400px] bg-yellow-500/5 rounded-full blur-[120px] pointer-events-none z-[-1]"></div>
+    <div class="fixed top-[40%] left-[40%] w-[250px] h-[250px] bg-blue-600/5 rounded-full blur-[90px] pointer-events-none z-[-1]"></div>
+
+    <!-- Background Twinkling Garena Stars (Neon Grid Enhancer) -->
+    <div class="fixed top-12 left-24 text-[8px] text-yellow-500 animate-twinkle pointer-events-none"><i class="fas fa-star"></i></div>
+    <div class="fixed top-64 right-16 text-[6px] text-purple-400 animate-twinkle pointer-events-none" style="animation-delay: 1.5s;"><i class="fas fa-star"></i></div>
+    <div class="fixed bottom-36 left-12 text-[7px] text-cyan-400 animate-twinkle pointer-events-none" style="animation-delay: 0.8s;"><i class="fas fa-star"></i></div>
+
+    <!-- Header Section -->
+    {{ header | safe }}
+
+    <main class="max-w-4xl mx-auto px-4 py-6 relative z-10">
+        <!-- Rendered Sections -->
+        {{ dashboard | safe }}
+        {{ guild_sec | safe }}
+        {{ friend_sec | safe }}
+        {{ bot_sec | safe }}
+    </main>
+
+    <!-- Modals Section -->
+    {{ modals | safe }}
+    
+    <!-- Floating Bottom Navigation -->
+    {{ nav_bar | safe }}
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-28 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-black font-black px-6 py-3.5 rounded-2xl shadow-[0_0_20px_rgba(234,179,8,0.3)] hidden z-[1000] text-xs uppercase tracking-widest border border-yellow-400/20 transition-all duration-300">
+        <span id="toast-text">Handshake Successful</span>
+    </div>
+
+    <script>
+        // UNIVERSAL SECURE/NON-SECURE CLIPBOARD COPY FALLBACK (Termux/Mobile Proof)
+        window.copyToClipboard = function(text, el) {
+            if(window.event) window.event.stopPropagation();
+            if(!text || text === "N/A" || text === "0") return;
+
+            const executeUIFeedback = () => {
+                let originalHtml = el.innerHTML;
+                el.innerHTML = '<span class="text-emerald-400 font-bold"><i class="fas fa-check"></i> Copied!</span>';
+                setTimeout(() => { el.innerHTML = originalHtml; }, 1000);
+            };
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(executeUIFeedback).catch(err => useFallbackCopy(text, executeUIFeedback));
+            } else {
+                useFallbackCopy(text, executeUIFeedback);
+            }
+        };
+
+        function useFallbackCopy(text, callback) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed"; 
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                callback();
+            } catch (err) {
+                console.error('Fallback copy failed', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const text = document.getElementById('toast-text');
+            text.innerText = msg;
+            if(type === 'error') {
+                toast.classList.replace('bg-yellow-500', 'bg-rose-600');
+                toast.classList.replace('text-black', 'text-white');
+                toast.style.boxShadow = '0 0 20px rgba(225, 29, 72, 0.3)';
+            } else {
+                toast.classList.replace('bg-rose-600', 'bg-yellow-500');
+                toast.classList.replace('text-white', 'text-black');
+                toast.style.boxShadow = '0 0 20px rgba(234, 179, 8, 0.3)';
+            }
+            toast.classList.remove('hidden');
+            setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+        }
+
+        // 🟢 ULTRA-STABLE TAILWIND SWITCH TAB ACTION (Bypasses rendering bugs)
+        function switchTab(tabId, el) {
+            // Hide all tab sections using Tailwind's 'hidden' class and remove block
+            document.querySelectorAll('.tab-section').forEach(c => {
+                c.classList.add('hidden');
+                c.classList.remove('block');
+            });
+            
+            // Show target section cleanly
+            const target = document.getElementById(tabId);
+            if(target) {
+                target.classList.remove('hidden');
+                target.classList.add('block');
+            }
+            
+            // Update nav buttons states
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('text-yellow-400'));
+            if(el) el.classList.add('text-yellow-400');
+        }
+    </script>
+</body>
+</html>
