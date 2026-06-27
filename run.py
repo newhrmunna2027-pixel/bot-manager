@@ -37,6 +37,9 @@ import leave_guild
 import terminal
 import app 
 
+# সনাক্তকরণ: এটি কি Render ক্লাউডে রান হচ্ছে কি না (Render অটোমেটিক্যালি এটি ট্রু করে দেয়)
+IS_RENDER = os.environ.get("RENDER") == "true"
+
 def is_port_in_use(port):
     """পোর্ট ব্লক হওয়া এড়াতে ব্যাকগ্রাউন্ড কানেকশন সিকিউরিটি চেক"""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -47,7 +50,7 @@ def check_mongodb_connection():
     mongo_uri = os.environ.get("MONGO_URI", "mongodb+srv://admin:admin@cluster.mongodb.net/garena_db")
     try:
         # ৫ সেকেন্ডের মধ্যে কানেক্ট না হলে এটি কানেকশন ফেইলড দেখাবে
-        temp_client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+        temp_client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000) # FIXED: mongo_uri ছোটহাতে ব্যবহার করা হয়েছে
         temp_client.server_info()  # Forces a call to check if connection is active
         print("\033[1;32m[🟢] MongoDB Connection verified successfully!\033[0m")
         return True
@@ -57,9 +60,7 @@ def check_mongodb_connection():
         return False
 
 def run_flask_app():
-    """ব্যাকগ্রাউন্ড থ্রেড এপিআই সার্ভার রানার"""
-    import os
-    # Render-এর দেওয়া ডাইনামিক পোর্ট রিড করবে, না থাকলে ডিফল্ট ৫০0০ পোর্ট নিবে
+    """এপিআই সার্ভার রানার"""
     port = int(os.environ.get("PORT", 5000))
     app.app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
 
@@ -72,19 +73,28 @@ def print_engine_boot_banner():
     # বুট ব্যানারে ডাটাবেজ কানেকশন চেক করা
     check_mongodb_connection()
     
-    print("\033[1;32m[*] Web API Server successfully bound on Background Thread.\033[0m")
+    if IS_RENDER:
+        print("\033[1;32m[*] App running on Headless Cloud (Render mode detected).\033[0m")
+    else:
+        print("\033[1;32m[*] Web API Server successfully bound on Background Thread.\033[0m")
     time.sleep(1.5)
 
 if __name__ == '__main__':
     # ১. বুট ডেকোরেশন ও ডাটাবেজ চেকিং রান করা
     print_engine_boot_banner()
 
-    # ২. ব্যাকগ্রাউন্ড থ্রেড এপিআই সার্ভার ইনিশিয়ালাইজ করা
-    api_thread = threading.Thread(target=run_flask_app, daemon=True)
-    api_thread.start()
-    
-    # ৩. মেইন থ্রেডে ইউজার কনসোল লুপ রান করা
-    try:
-        terminal.console_loop()
-    except KeyboardInterrupt:
-        print(f"\n\n\033[1;31m⚠ Dashboard Engine Process terminated by user.\033[0m")
+    # ২. যদি এটি Render-এ রান হয়, তবে ইন্টারঅ্যাক্টিভ কনসোল বাদ দিয়ে মেইন থ্রেডে ফ্লাস্ক রান করবে (EOFError প্রতিরোধ করবে)
+    if IS_RENDER:
+        try:
+            run_flask_app()
+        except KeyboardInterrupt:
+            print(f"\n\n\033[1;31m⚠ Dashboard Engine Process terminated by user.\033[0m")
+    else:
+        # লোকাল (Termux/PC) রান মোড: ব্যাকগ্রাউন্ডে ফ্লাস্ক এবং মেইন থ্রেডে টার্মিনাল রান করবে
+        api_thread = threading.Thread(target=run_flask_app, daemon=True)
+        api_thread.start()
+        
+        try:
+            terminal.console_loop()
+        except KeyboardInterrupt:
+            print(f"\n\n\033[1;31m⚠ Dashboard Engine Process terminated by user.\033[0m")
